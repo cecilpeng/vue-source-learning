@@ -2,9 +2,11 @@
 
 ### 背景由来
 
-Web 开发，是一种 GUI 编程，常用的编程范式是事件驱动编程，即围绕事件编写程序逻辑。
+Web 开发，是一种 GUI 编程，常用的编程范式是事件驱动编程，即围绕事件编写程序逻辑。经过 20 多年的发展，Web 应用越来越复杂，也逐步发展成为数据驱动编程，即围绕数据编写程序逻辑。数据驱动编程，实际上借鉴了面向对象编程的思想，来管理数据与事件之间的关系。类比来看，事件关联方法，数据对应属性。属性独立，结构性变化少，具有稳定性；方法多态，是属性变化的映射，具有灵活性。这种映射关系，是属性变化的组合，是符合自然规律的内在特征外化的表现方式。完整的数据模型，必然导向逻辑简洁而健壮。具体来说，在 Web 开发中，我们围绕 ViewModel 编程，会把数据分为基础数据和状态数据，基础数据用于展示，状态数据用于控制，从而形成了数据到视图的映射。
 
-当时，jQuery 作为一个简洁而快速的 js 基础库，提供了多端统一的 API，简化了事件处理的逻辑。即使到现在，依然有一些老项目在使用。其中，js 控制 dom、css 的代码混杂，不易阅读，弥漫着面向过程编程的味道。
+我们简单回顾一下演变历程。
+
+当时，jQuery 作为一个简洁而快速的 js 基础库，提供了多端统一的 API，简化了事件处理的逻辑。即使到现在，依然有一些老项目在使用。但是，js 控制 dom、css 的代码混杂，不易阅读，弥漫着面向过程编程的味道。
 
 JQuery
 
@@ -17,7 +19,9 @@ $('#counterBtn').on('click', function (e) {
     $span = $('span')
     $counter.append($span)
   }
-  $span.html(++count)
+  $span.html(++count).css({
+    color: count > 10 ? 'red' : 'green',
+  })
 })
 ```
 
@@ -30,20 +34,23 @@ var count = 0
 $('#counterBtn').on('click', function (e) {
   var $counter = $('#counter')
   $counter.html(
-    $.tmpl('<span>{{= count}}</span>', {
-      count: count,
-    })
+    $.tmpl(
+      '<span style="color: {{= ++count > 10 ? "red" : "green"}}">{{= count}}</span>',
+      {
+        count: count,
+      }
+    )
   )
 })
 ```
 
-而后，AngularJs （scope）引入双向数据绑定，采用脏检查机制（UI 事件、$http、$timeout/\$interval 等内置 API 触发），让越来越多的 web 开发者意识到，数据驱动编程极大地提升了编码效率，并且倒逼了 js 的发展。 随着 ES5 的普及，js 原生支持了数据劫持，React（state）/ Vue（data）进一步推进了数据驱动编程，分离数据模型和视图，让 web 开发者前期更专注于设计数据模型。
+AngularJs （scope）引入双向数据绑定，采用脏检查机制（UI 事件、$http、$timeout/\$interval 等内置 API 触发），让越来越多的 web 开发者意识到，数据驱动编程极大地提升了编码效率，并且倒逼了 js 的发展。此时，数据驱动编程已经成为一种主流，美中不足的是性能不佳（数量庞大的 Dom 结构页面容易卡顿），这关系到虚拟 Dom 技术（TODO）。
 
 AngularJS
 
 ```html
 <div ng-controller="ctrl">
-  <span>{{counter}}</span>
+  <span ng-style="{ color: count > 10 ? 'red' : 'green' }">{{counter}}</span>
 </div>
 ```
 
@@ -58,9 +65,11 @@ angular.controller('ctrl', function ($scope) {
 
 ```html
 <div id="counter">
-  <span>{{counter}}</span>
+  <span :style="{ color: count > 10 ? 'red' : 'green' }">{{counter}}</span>
 </div>
 ```
+
+随着 ES5 的普及，js 原生支持了数据劫持，Vue（data）进一步推进了数据驱动编程，分离数据模型和视图，让 web 开发者前期更专注于设计数据模型。接着，ES6 的发展又带来了 Proxy、Reflect，也进一步推动了 Vue2.0 向 Vue3.0 的演变。
 
 Vue
 
@@ -80,9 +89,9 @@ var vm = new Vue({
 })
 ```
 
-数据驱动编程，对于控制复杂度发挥了极大作用，其核心原因是——数据模型抽象，元数据之间互相独立，具有灵活组合的能力，结构性变化少；程序逻辑具象，个体差异化较多，基于数据的规则呈指数级，适应性变化多。
+### 功能描述
 
-### MVP 功能描述
+我们需要实现这样一个功能：
 
 数据与程序逻辑分离，具体来说，是实现**数据变更时，使用数据的地方可以同步变化**。在 vue 体系下，具体还包含
 

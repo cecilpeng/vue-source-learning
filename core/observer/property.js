@@ -112,8 +112,6 @@ export default class Property {
     }
   }
 
-  static all = []
-
   static reactive(data, key) {
     const property = Object.getOwnPropertyDescriptor(data, key)
     return !property || property.configurable
